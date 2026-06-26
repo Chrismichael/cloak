@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Cloak — Logic QA Harness</title>
+<style>
+  body { font: 14px/1.5 -apple-system, system-ui, sans-serif; max-width: 820px;
+         margin: 40px auto; padding: 0 20px; background:#16181d; color:#e8e9ec; }
+  h1 { letter-spacing:.1em; } .amber{color:#f5a623;}
+  textarea { width:100%; min-height:120px; background:#1e2127; color:#e8e9ec;
+             border:1px solid #2f343d; border-radius:8px; padding:10px; font:13px/1.5 ui-monospace,monospace;}
+  button { background:#f5a623; color:#1a1305; border:none; font-weight:700;
+           padding:8px 16px; border-radius:8px; cursor:pointer; margin:8px 8px 8px 0;}
+  pre { background:#23272f; border:1px solid #2f343d; border-radius:8px; padding:12px;
+        white-space:pre-wrap; word-break:break-word;}
+  .ph{color:#f5a623;font-weight:700;}
+  .row{display:flex;gap:16px;} .col{flex:1;}
+  label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9aa0ab;}
+  .leg{font:12px ui-monospace,monospace;color:#9aa0ab;}
+</style>
+</head>
+<body>
+<h1><span class="amber">CLOAK</span> · logic harness</h1>
+<p class="leg">Model-free QA: tests the regex + pseudonymization + round-trip in a real browser.
+NER (names/companies) is simulated here via a small dictionary so you can see the full flow.</p>
+
+<label>Input</label>
+<textarea id="in">Hi, this is Sarah Chen from Meridian Capital in San Francisco. Our client John Doe (john.doe@acme.com, 415-555-0182) at Acme Corp paid $4.2M last quarter via card 4532 0151 1283 0366. SSN 123-45-6789. Wire to GB82 WEST 1234 5698 7654 32. Server 192.168.1.42.</textarea>
+<button id="cloak">Cloak it</button>
+<label><input type="checkbox" id="dummy"> dummy stats</label>
+
+<div class="row">
+  <div class="col"><label>Cloaked</label><pre id="out"></pre></div>
+</div>
+<div id="legend" class="leg"></div>
+
+<label>Paste an "AI response" using the placeholders, then reveal</label>
+<textarea id="ai">[Person_A] from [Company_1] should call [Person_B] at [Email_1]. Charge [Card_1].</textarea>
+<button id="reveal">Reveal it</button>
+<pre id="revealed"></pre>
+
+<script type="module">
+import { detectStructured, detectNumbers } from "./src/detectors.js";
+import { cloak, rehydrate } from "./src/pseudonymizer.js";
+
+// Tiny dictionary NER stand-in for the harness only.
+const DICT = { PER:["Sarah Chen","John Doe"], ORG:["Meridian Capital","Acme Corp"], LOC:["San Francisco"] };
+function dictNER(text){
+  const out=[];
+  for(const [type,names] of Object.entries(DICT))
+    for(const n of names){ let i=text.indexOf(n); while(i!==-1){ out.push({start:i,end:i+n.length,value:n,type}); i=text.indexOf(n,i+1);} }
+  return out;
+}
+let restore = {};
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+$("cloak").onclick=()=>{
+  const text=$("in").value;
+  const dummy=$("dummy").checked;
+  const matches=[...detectStructured(text),...dictNER(text),...(dummy?detectNumbers(text):[])];
+  const r=cloak(text,matches,{dummyStats:dummy});
+  restore=r.restore;
+  $("out").innerHTML=esc(r.cloaked).replace(/\[[A-Za-z]+_[A-Za-z0-9]+\]/g,m=>`<span class="ph">${m}</span>`);
+  const seen=new Set();
+  $("legend").innerHTML=r.entities.filter(e=>!seen.has(e.placeholder)&&seen.add(e.placeholder))
+    .map(e=>`<div><span class="ph">${e.placeholder}</span> ← ${esc(e.value)} <em>(${e.type})</em></div>`).join("");
+};
+$("reveal").onclick=()=>{ $("revealed").textContent=rehydrate($("ai").value,restore); };
+$("cloak").click();
+</script>
+</body>
+</html>

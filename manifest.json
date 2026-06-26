@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Cloak — Scrub PII before AI",
+  "version": "1.0.2",
+  "description": "Remove names, companies, emails, numbers and other sensitive data before you paste into ChatGPT, Claude or Gemini. 100% on-device.",
+  "author": "yForest.ai",
+  "homepage_url": "https://yforest.ai",
+  "permissions": ["offscreen", "storage", "contextMenus", "clipboardWrite"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Cloak"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "minimum_chrome_version": "116",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

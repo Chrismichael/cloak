@@ -1,0 +1,20 @@
+{
+  "name": "cloak-extension",
+  "version": "1.0.0",
+  "description": "On-device PII scrubber for AI prompts. Reversible pseudonymization, zero data leaves the browser.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fetch-model": "bash fetch-model.sh",
+    "build": "node build.js",
+    "build:watch": "node build.js --watch",
+    "test": "node test.mjs && node test2.mjs",
+    "package": "npm run build && cd dist && zip -r ../cloak-v$npm_package_version.zip . -x '*.DS_Store' && cd .. && echo 'Packaged: cloak-v'$npm_package_version'.zip'"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0"
+  }
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Cloak</title>
+  </head>
+  <body>
+    <header class="bar">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <span class="word">CLOAK</span>
+        <span class="ver">v1.0.2</span>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">⚙</button>
+      <div class="net" title="No network access — everything runs on this device">
+        <span class="net-dot"></span>on-device
+      </div>
+    </header>
+
+    <main>
+      <!-- Mode switch: Cloak (outbound) / Reveal (inbound) -->
+      <div class="tabs" role="tablist">
+        <button id="tabCloak" class="tab active" role="tab" aria-selected="true">Cloak</button>
+        <button id="tabReveal" class="tab" role="tab" aria-selected="false">Reveal</button>
+      </div>
+
+      <!-- CLOAK VIEW -->
+      <section id="cloakView" class="view">
+        <label class="field-label" for="input">Paste what you want to send to the AI</label>
+        <textarea
+          id="input"
+          class="text-area"
+          placeholder="Hi, this is Sarah Chen from Meridian Capital. Our client john.doe@acme.com paid $4.2M last quarter…"
+          spellcheck="false"
+        ></textarea>
+
+        <div class="actions">
+          <button id="cloakBtn" class="primary">Cloak it</button>
+          <button id="clearBtn" class="ghost">Clear</button>
+          <span id="warmup" class="warmup" hidden></span>
+        </div>
+
+        <div id="outputWrap" class="output-wrap" hidden>
+          <div class="output-head">
+            <label class="field-label">Safe to paste</label>
+            <button id="copyOut" class="ghost">Copy</button>
+          </div>
+          <div id="output" class="text-area output" contenteditable="false"></div>
+
+          <div id="legend" class="legend"></div>
+        </div>
+      </section>
+
+      <!-- REVEAL VIEW -->
+      <section id="revealView" class="view" hidden>
+        <label class="field-label" for="aiInput">Paste the AI's response to restore real values</label>
+        <textarea
+          id="aiInput"
+          class="text-area"
+          placeholder="[Person_A] from [Company_1] should follow up with [Email_1]…"
+          spellcheck="false"
+        ></textarea>
+        <div class="actions">
+          <button id="revealBtn" class="primary">Reveal it</button>
+        </div>
+        <div id="revealOutWrap" class="output-wrap" hidden>
+          <div class="output-head">
+            <label class="field-label">With your real values</label>
+            <button id="copyReveal" class="ghost">Copy</button>
+          </div>
+          <div id="revealOut" class="text-area output"></div>
+        </div>
+        <p id="noMap" class="hint" hidden>
+          No active map. Cloak something first — the restore map is held only for
+          this session and never saved to disk.
+        </p>
+      </section>
+    </main>
+
+    <!-- SETTINGS PANEL -->
+    <div id="settings" class="settings" hidden>
+      <div class="settings-head">
+        <span>Settings</span>
+        <button id="closeSettings" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="optNER" checked />
+        <span>Detect names, companies & places (local AI model)</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="optDummy" />
+        <span>Replace numbers with realistic dummy values</span>
+      </label>
+      <div class="types">
+        <span class="types-label">Cloak these types</span>
+        <div id="typeGrid" class="type-grid"></div>
+      </div>
+      <p class="settings-foot">
+        Nothing you type leaves your device. The model and all processing live
+        inside this extension.
+      </p>
+      <p class="settings-credit">
+        Built by <a href="https://yforest.ai" target="_blank" rel="noopener">yForest.ai</a>
+      </p>
+    </div>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

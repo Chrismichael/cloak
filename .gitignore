@@ -1,0 +1,11 @@
+# Dependencies and build output — rebuildable, never commit
+node_modules/
+dist/
+
+# Model + WASM files — large, fetched by 'npm run fetch-model'
+models/
+!models/README.txt
+
+# OS / editor cruft
+.DS_Store
+*.log
